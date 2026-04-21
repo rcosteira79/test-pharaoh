@@ -73,7 +73,7 @@ android-test-agent/
 ### 3.2 Per-project state (written into the target repo)
 
 ```
-.claude/test-agent/
+.claude/android-test-agent/
 ├── project-profile.json              # discovery output, hashed to libs.versions.toml
 ├── config.json                        # per-project overrides (parentBranch, etc.)
 └── runs/<timestamp>/
@@ -100,7 +100,7 @@ Runs on first invocation or whenever the version-catalog hash changes. Responsib
 - Detect error-wrapper conventions per module (Box<T> vs Result<T>).
 - Read `AGENTS.md` if present.
 
-Writes `.claude/test-agent/project-profile.json` with structure including:
+Writes `.claude/android-test-agent/project-profile.json` with structure including:
 
 - `versionCatalogHash`
 - `frameworks: { name → { version, moduleAliases } }`
@@ -121,6 +121,8 @@ Dispatched per (class × tier), in parallel where independent. Inputs:
 **Hard constraint**: the generator cannot read the body of the class under test. This is enforced at the input boundary — only the extract is placed in context. If the generator decides the signature is insufficient to specify a test, it returns a clarification request; it does not fall back to reading the body.
 
 Writes test file(s) at `src/test/kotlin/<mirror of production package>/` within the same module as the class under test. Fakes needed for dependencies are created alongside, mirroring the production package, not grouped into a `fakes/` subdirectory. Cross-module fake sharing is not automated — the developer can promote a fake manually after generation.
+
+**Augment, do not replace**: when a class in scope already has tests, the generator adds new test methods to the existing file (or creates a sibling file if the structure doesn't fit). It never rewrites or deletes human-authored tests.
 
 ### 4.4 `failure-analyst` subagent
 
@@ -208,7 +210,7 @@ Orchestrator
            writes: test file(s) in correct source set
 
    for each module where tests were written:
-     ──► ./gradlew <module>:<appropriate test task>
+     ──► ./gradlew <module>:<task per tier, from profile.modules[module].testTasks>
            (module-scoped — module's locally-configured runner used)
 
    if failures:
@@ -224,7 +226,7 @@ Orchestrator
 
 ### 5.1 Parent-branch detection
 
-1. `.claude/test-agent/config.json` → `parentBranch` if set.
+1. `.claude/android-test-agent/config.json` → `parentBranch` if set.
 2. Otherwise, the first existing of: `develop`, `main`, `master`.
 3. None found → orchestrator prompts the user and persists the choice.
 
@@ -285,7 +287,7 @@ Structured report:
 
 - Summary: N passed / M failed / K skipped.
 - Per failed test: file path, failure type, most-likely cause, suggested fix path.
-- `.claude/test-agent/runs/<ts>/` retains TEST_PLAN.md, generated files, logs, and diagnosis — the user can resume manually.
+- `.claude/android-test-agent/runs/<ts>/` retains TEST_PLAN.md, generated files, logs, and diagnosis — the user can resume manually.
 
 ### 6.9 Global principle
 
