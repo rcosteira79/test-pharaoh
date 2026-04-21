@@ -178,7 +178,14 @@ Orchestrator
    if mismatch / missing:
      ──► dispatch Discoverer → writes project-profile.json
 
-   scope = (classes in diff) ∩ (classes implicated by ACs)
+   if diff is non-empty:
+     scope = (classes in diff) ∩ (classes implicated by ACs)
+   else:
+     ──► AC-based scope inference
+           scan modules named/implied in the ACs (not the whole repo)
+           for classes matching AC concepts (name/keyword match)
+     ──► present candidate list to user; user confirms, edits, or replaces
+     scope = user-confirmed list
 
    for each class in scope:
      ──► invoke kotlin-signatures jar → signature extract
@@ -243,7 +250,7 @@ Catching a misinterpretation of the feature at Gate 0 costs a re-read. Catching 
 ### 6.1 Input and invocation
 
 - Missing ACs → orchestrator asks before proceeding.
-- No diff vs. parent → reports "no changes on branch" and stops.
+- No diff vs. parent → fall back to AC-based scope inference (see §5): orchestrator scans modules named/implied in the ACs for classes matching AC concepts and presents a candidate list. User confirms, edits, or replaces before proceeding. If the user-confirmed list is empty, orchestrator stops.
 - Parent branch not detected → prompt, persist to `config.json`.
 
 ### 6.2 Discovery
