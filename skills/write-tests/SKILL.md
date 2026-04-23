@@ -23,6 +23,16 @@ Before starting the workflow, verify these prerequisites. If any fails, stop wit
 - The wrapper script `<plugin-dir>/scripts/kotlin-signatures/bin/kotlin-signatures` is executable (`test -x`). If not, tell the user to `chmod +x` it.
 - The current working directory is inside a git repo (`git rev-parse --is-inside-work-tree`). If not, stop — `/write-tests` only operates on a branch.
 
+## Branch / worktree selection
+
+Before collecting the story + ACs, ask the user where tests should be written:
+
+- **(a) Current branch** — work on the branch already checked out. Generated tests land here. Pick this if you already have a feature branch ready.
+- **(b) New branch** — create a new branch off `HEAD`. Suggest a name based on the feature (e.g., `tests/<feature-slug>`); let the user override. Run: `git checkout -b <name>`.
+- **(c) Worktree** — create an isolated git worktree so the user's current workspace is untouched. Invoke the `superpowers:using-git-worktrees` skill for directory selection + safety verification (`.worktrees/` vs `worktrees/`, CLAUDE.md preference, gitignore check). Do NOT attempt to set up the worktree manually.
+
+Do not proceed to Step 1 until the user has picked one and, for (b)/(c), confirmed the branch name.
+
 ## 1. Collect inputs
 
 - Ask the user to paste the user story + acceptance criteria. If not provided, the orchestrator MUST stop and prompt the user for the story + ACs before proceeding — do not continue with a blank or inferred spec.
