@@ -64,7 +64,7 @@ fun stripBodies(source: String): String {
                 override fun visitAnonymousInitializer(initializer: KtAnonymousInitializer) {
                     val range = initializer.textRange
                     ranges += range.startOffset until range.endOffset
-                    // Do not call super — no children inside an init block need visiting.
+                    // Entire range is removed, so descending would just queue redundant sub-ranges.
                 }
 
                 // NOTE: this visitor covers `=`-style initializers only.

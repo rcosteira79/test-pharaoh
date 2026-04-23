@@ -152,7 +152,7 @@ class MainTest {
 
         assertTrue(output.contains("class Service"))
         assertTrue(output.contains("fun serve()"))
-        assertFalse(output.contains("init"))
+        assertFalse(Regex("""\binit\s*\{""").containsMatchIn(output))
         assertFalse(output.contains("println"))
     }
 }
