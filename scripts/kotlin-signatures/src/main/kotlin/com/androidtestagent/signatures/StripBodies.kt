@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.idea.KotlinLanguage
+import org.jetbrains.kotlin.psi.KtAnonymousInitializer
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
@@ -58,6 +59,12 @@ fun stripBodies(source: String): String {
                         ranges += range.startOffset until range.endOffset
                     }
                     super.visitNamedFunction(function)
+                }
+
+                override fun visitAnonymousInitializer(initializer: KtAnonymousInitializer) {
+                    val range = initializer.textRange
+                    ranges += range.startOffset until range.endOffset
+                    // Do not call super — no children inside an init block need visiting.
                 }
 
                 // NOTE: this visitor covers `=`-style initializers only.

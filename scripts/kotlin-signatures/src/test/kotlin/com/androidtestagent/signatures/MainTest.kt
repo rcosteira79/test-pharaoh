@@ -134,4 +134,25 @@ class MainTest {
         assertTrue(output.contains("abstract val name: String"))
         assertTrue(output.contains("val fixed: Int"))
     }
+
+    @Test
+    fun `init blocks are removed entirely`() {
+        val input =
+            """
+            class Service {
+                private val id = 0
+                init {
+                    println("booting")
+                }
+                fun serve() {}
+            }
+            """.trimIndent()
+
+        val output = stripBodies(input)
+
+        assertTrue(output.contains("class Service"))
+        assertTrue(output.contains("fun serve()"))
+        assertFalse(output.contains("init"))
+        assertFalse(output.contains("println"))
+    }
 }
