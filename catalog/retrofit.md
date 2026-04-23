@@ -88,6 +88,8 @@ class UserServiceTest {
 
 For `Response<T>` return types, assert `response.isSuccessful`, `response.code()`, and `response.errorBody()?.string()` instead of `assertThrows<HttpException>`.
 
+> **Note:** MockWebServer 4.x uses `SocketPolicy.DISCONNECT_AT_START`; MockWebServer 5.x uses `SocketPolicy.DisconnectAtStart` (class-based). The target project's `okhttp-mockwebserver` version determines which form applies.
+
 ## Gotchas
 
 - `HttpException` only wraps non-2xx responses when the service method returns `T` directly. Methods returning `Response<T>` never throw on HTTP failure — tests must branch on `isSuccessful`.
