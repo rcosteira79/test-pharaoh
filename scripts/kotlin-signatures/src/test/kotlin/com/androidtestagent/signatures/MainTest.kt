@@ -179,6 +179,22 @@ class MainTest {
     }
 
     @Test
+    fun `single-expression function body is stripped`() {
+        val input =
+            """
+            fun double(x: Int) = x * 2
+            fun <T> id(t: T): T = t
+            """.trimIndent()
+
+        val output = stripBodies(input)
+
+        assertTrue(output.contains("fun double(x: Int)"))
+        assertTrue(output.contains("fun <T> id(t: T): T"))
+        assertFalse(output.contains("x * 2"))
+        assertFalse(output.contains("= t"))
+    }
+
+    @Test
     fun `init blocks are removed entirely`() {
         val input =
             """
