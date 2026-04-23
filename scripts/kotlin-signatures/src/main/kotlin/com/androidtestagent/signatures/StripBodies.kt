@@ -60,11 +60,19 @@ fun stripBodies(source: String): String {
                     super.visitNamedFunction(function)
                 }
 
+                // NOTE: this visitor covers `=`-style initializers only. Delegated properties
+                // (`by lazy { ... }`) and custom accessors (`get()`/`set() { ... }`) are not
+                // yet stripped — see backlog for dedicated follow-ups.
                 override fun visitProperty(property: KtProperty) {
                     val equalsToken = property.equalsToken
                     val initializer = property.initializer
                     if (equalsToken != null && initializer != null) {
-                        ranges += equalsToken.textRange.startOffset until initializer.textRange.endOffset
+                        val rangeStart =
+                            property.typeReference?.textRange?.endOffset
+                                ?: property.nameIdentifier?.textRange?.endOffset
+                                ?: equalsToken.textRange.startOffset
+                        val rangeEnd = initializer.textRange.endOffset
+                        ranges += rangeStart until rangeEnd
                     }
                     super.visitProperty(property)
                 }

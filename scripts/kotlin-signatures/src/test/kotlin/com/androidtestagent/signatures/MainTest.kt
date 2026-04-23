@@ -102,5 +102,36 @@ class MainTest {
         assertTrue(output.contains("var retries: Int"))
         assertFalse(output.contains("https://api.example.com"))
         assertFalse(output.contains("= 3"))
+        assertFalse(output.contains("endpoint: String ="))
+        assertFalse(output.contains("retries: Int ="))
+    }
+
+    @Test
+    fun `const val initializer is stripped`() {
+        val input =
+            """
+            const val VERSION = "1.0"
+            """.trimIndent()
+
+        val output = stripBodies(input)
+
+        assertTrue(output.contains("const val VERSION"))
+        assertFalse(output.contains("1.0"))
+    }
+
+    @Test
+    fun `property without initializer is preserved`() {
+        val input =
+            """
+            abstract class Base {
+                abstract val name: String
+                val fixed: Int
+            }
+            """.trimIndent()
+
+        val output = stripBodies(input)
+
+        assertTrue(output.contains("abstract val name: String"))
+        assertTrue(output.contains("val fixed: Int"))
     }
 }
