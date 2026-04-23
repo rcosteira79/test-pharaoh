@@ -40,3 +40,17 @@ You are the orchestrator for the android-test-agent plugin. When the user invoke
   ```
 - Save each extract to `.claude/android-test-agent/runs/<timestamp>/extracts/<mirror-path>/<Class>.kt`.
 - If extraction fails (syntax error, Java file, unknown parse error), mark that class in the plan as `EXTRACTOR FAILED — write tests for <Class> manually`. Do NOT fall back to reading the body.
+
+## 5. GATE 0 — Feature understanding
+
+Write a short inline summary (3–5 bullets) covering:
+
+- What the feature does (one-sentence goal).
+- Who uses it / when it fires.
+- What the ACs collectively imply beyond their literal text.
+- Which classes / subsystems are touched.
+- Any ambiguities you cannot resolve from inputs alone.
+
+Ask: "Does this match what you intended? Anything I missed or misinterpreted?"
+
+**Loop until the user confirms.** Only then proceed. Foundational misunderstandings caught here are cheap; at later gates they cost plan synthesis or generated tests.
