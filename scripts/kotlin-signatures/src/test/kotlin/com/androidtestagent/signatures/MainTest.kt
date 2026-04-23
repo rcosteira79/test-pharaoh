@@ -136,6 +136,25 @@ class MainTest {
     }
 
     @Test
+    fun `sealed class branches survive`() {
+        val input =
+            """
+            sealed class LoginError {
+                data object InvalidCredentials : LoginError()
+                data class Throttled(val retryAfter: Long) : LoginError()
+                data object Network : LoginError()
+            }
+            """.trimIndent()
+
+        val output = stripBodies(input)
+
+        assertTrue(output.contains("sealed class LoginError"))
+        assertTrue(output.contains("InvalidCredentials : LoginError()"))
+        assertTrue(output.contains("data class Throttled(val retryAfter: Long)"))
+        assertTrue(output.contains("Network : LoginError()"))
+    }
+
+    @Test
     fun `init blocks are removed entirely`() {
         val input =
             """
