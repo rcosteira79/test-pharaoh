@@ -1,0 +1,8 @@
+> Task :feature-auth:compileTestKotlin FAILED
+e: file:///…/LoginViewModelTest.kt:12:28 Unresolved reference: Truth
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':feature-auth:compileTestKotlin'.
+> Compilation error. See log for more details.

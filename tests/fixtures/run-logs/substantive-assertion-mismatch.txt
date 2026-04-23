@@ -1,0 +1,11 @@
+> Task :app:test
+
+com.sample.app.LoginViewModelTest > submit_invalidCreds_emitsError FAILED
+    com.google.common.truth.AssertionError:
+    expected: LoginUiState.Error(message=Wrong email or password)
+    but was:  LoginUiState.Error(message=unknown)
+        at com.sample.app.LoginViewModelTest.submit_invalidCreds_emitsError(LoginViewModelTest.kt:47)
+
+1 test completed, 1 failed
+
+FAILURE: Build failed with an exception.
