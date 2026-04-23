@@ -34,23 +34,23 @@ class UserRepositoryTest {
     private lateinit var apollo: ApolloClient
 
     @BeforeEach
-    fun setUp() = runTest {
+    fun setUp() {
         mockServer = MockServer()
         apollo = ApolloClient.Builder()
-            .serverUrl(mockServer.url())
+            .serverUrl(runBlocking { mockServer.url() })
             .normalizedCache(MemoryCacheFactory(maxSizeBytes = 1_000_000))
             .build()
     }
 
     @AfterEach
-    fun tearDown() = runTest {
+    fun tearDown() {
         apollo.close()
-        mockServer.close()
+        runBlocking { mockServer.close() }
     }
 
     @Test
     fun `query returns parsed data on 200`() = runTest {
-        mockServer.enqueue("""{"data":{"user":{"id":"1","name":"Ada"}}}""")
+        mockServer.enqueueString("""{"data":{"user":{"id":"1","name":"Ada"}}}""")
 
         val response = apollo.query(GetUserQuery(id = "1")).execute()
 
@@ -60,7 +60,7 @@ class UserRepositoryTest {
 
     @Test
     fun `errors payload is surfaced alongside data`() = runTest {
-        mockServer.enqueue(
+        mockServer.enqueueString(
             """{"data":{"user":null},"errors":[{"message":"forbidden","path":["user"]}]}"""
         )
 
@@ -82,7 +82,7 @@ class UserRepositoryTest {
 
     @Test
     fun `cache-only hit returns cached data`() = runTest {
-        mockServer.enqueue("""{"data":{"user":{"id":"1","name":"Ada"}}}""")
+        mockServer.enqueueString("""{"data":{"user":{"id":"1","name":"Ada"}}}""")
         apollo.query(GetUserQuery(id = "1")).execute() // populate cache
 
         val cached = apollo.query(GetUserQuery(id = "1"))
@@ -102,5 +102,5 @@ Subscriptions use `apollo.subscription(...).toFlow()` and are best asserted with
 - The normalized cache identifies entities by operation ID plus cache keys. If `CacheKeyGenerator` is not configured, cache-hit tests that seem correct in isolation can fail in aggregate because entities collide. Use a fresh `ApolloClient` per test.
 - Operation IDs are baked in at codegen time and must stay stable between debug and release, and between the client and a persisted-query allowlist on the server. A release-only test failure is almost always a codegen drift, not logic drift.
 - `ApolloHttpException`, `ApolloGraphQLException`, `ApolloNetworkException`, and `ApolloCompositeException` form a hierarchy but are not all thrown — Apollo 3 wraps many failures in the `Response.errors` list instead. Prefer asserting on `response.errors` and `response.exception` over `assertThrows`.
-- `MockServer.enqueue("...")` takes a raw JSON string; malformed JSON will fail the serializer, not the test — wrap the parse in `assertThrows<ApolloException>` to assert malformed-body handling.
+- `MockServer.enqueueString("...")` takes a raw JSON string; malformed JSON will fail the serializer, not the test — wrap the parse in `assertThrows<ApolloException>` to assert malformed-body handling.
 - Subscriptions under `WebSocketNetworkTransport` require an explicit `close()` on the `ApolloClient` to terminate the underlying socket; leaking it causes the next test's subscription to reuse a zombie connection.
