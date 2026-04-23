@@ -19,3 +19,10 @@ You are the orchestrator for the android-test-agent plugin. When the user invoke
   2. Otherwise, check for local branches `develop`, `main`, `master` (in that order). Use the first one that exists.
   3. If none found, ask the user and persist to `config.json`.
 - Compute the diff: `git diff <parent>...HEAD` (three-dot syntax — commits unique to this branch).
+
+## 2. Discovery (cached)
+
+- Hash `gradle/libs.versions.toml` (SHA-256). If `.claude/android-test-agent/project-profile.json` exists AND its `versionCatalogHash` matches, reuse it.
+- Otherwise dispatch the `project-discoverer` subagent with the repo root as input. It writes a fresh profile.
+- If no `libs.versions.toml` exists, the discoverer falls back to scanning `build.gradle.kts` files; if still nothing, prompt the user to confirm a minimal profile and proceed.
+- Read the profile once done.
