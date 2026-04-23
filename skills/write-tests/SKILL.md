@@ -54,3 +54,30 @@ Write a short inline summary (3–5 bullets) covering:
 Ask: "Does this match what you intended? Anything I missed or misinterpreted?"
 
 **Loop until the user confirms.** Only then proceed. Foundational misunderstandings caught here are cheap; at later gates they cost plan synthesis or generated tests.
+
+## 6. Plan synthesis
+
+For each class in scope and each applicable tier (unit, integration, roborazzi, cucumber), list the planned tests with **traceability markers**. Example format in `.claude/android-test-agent/runs/<timestamp>/TEST_PLAN.md`:
+
+```
+### com.sample.auth.LoginViewModel (tier: unit)
+
+- [ ] onSubmit_validCreds_emitsSuccess
+      source: AC-1
+- [ ] onSubmit_invalidCreds_emitsInlineError_andClearsPassword
+      source: AC-2
+- [ ] onSubmit_networkFailure_emitsBanner
+      source: AC-3 + catalog/retrofit.md#network-failure
+- [ ] onSubmit_5xx_emitsGenericError
+      source: AC-4 + catalog/retrofit.md#5xx
+- [ ] sealedStateBranches_exhaustivelyRendered
+      source: contract (LoginUiState sealed branches)
+```
+
+Additionally:
+- Attach any **clarification questions** (things contract + catalog leave ambiguous).
+- If existing tests rely on mocks, add a **refactor proposal** section offering to migrate them to fakes before writing new tests.
+
+## 7. GATE 1 — Plan review
+
+Tell the user the plan is written. They review, edit `TEST_PLAN.md` directly if they want, or answer clarifying questions. **Do not dispatch the generator until the user approves.**
