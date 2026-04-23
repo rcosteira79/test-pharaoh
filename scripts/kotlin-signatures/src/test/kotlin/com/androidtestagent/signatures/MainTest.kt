@@ -175,6 +175,7 @@ class MainTest {
         assertTrue(output.contains("fun <T : Any> fetch"))
         assertTrue(output.contains("cache: Cache<T>"))
         assertFalse(output.contains("DefaultCache()"))
+        assertFalse(output.contains("cache: Cache<T> ="))
     }
 
     @Test

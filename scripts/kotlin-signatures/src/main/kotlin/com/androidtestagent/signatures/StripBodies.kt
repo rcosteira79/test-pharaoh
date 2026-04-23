@@ -86,13 +86,17 @@ fun stripBodies(source: String): String {
                 }
 
                 override fun visitParameter(parameter: KtParameter) {
-                    val equalsToken = parameter.equalsToken
                     val defaultValue = parameter.defaultValue
-                    if (equalsToken != null && defaultValue != null) {
-                        // Widen start to include any whitespace before `=`.
-                        val rangeStart = equalsToken.textRange.startOffset
+                    val equalsToken = parameter.equalsToken
+                    if (defaultValue != null && equalsToken != null) {
+                        // Widen start to end of the type reference (or name identifier) so the
+                        // whitespace before `=` is consumed too, matching visitProperty.
+                        val rangeStart =
+                            parameter.typeReference?.textRange?.endOffset
+                                ?: parameter.nameIdentifier?.textRange?.endOffset
+                                ?: equalsToken.textRange.startOffset
                         val rangeEnd = defaultValue.textRange.endOffset
-                        ranges += rangeStart until rangeEnd
+                        ranges += rangeStart..rangeEnd
                     }
                     super.visitParameter(parameter)
                 }
