@@ -1,15 +1,35 @@
 # android-test-agent
 
-Claude Code plugin that writes tests for code introduced on an Android branch, driven by the branch's user story and acceptance criteria.
+Claude Code plugin that writes tests for code introduced on an Android branch, driven by the branch's user story + ACs. Adheres to the project's existing conventions. Never generates mock-based tests.
 
-## Status
+## Install (development)
 
-v0.x — pre-release. See `docs/superpowers/specs/2026-04-21-android-test-agent-design.md` for the design.
+```bash
+mkdir -p ~/.claude/plugins
+ln -s "$(pwd)" ~/.claude/plugins/android-test-agent
+```
 
-## Install (local, for development)
+Then, in the `kotlin-signatures` tool, build the jar:
 
-Place the plugin under `~/.claude/plugins/android-test-agent/`.
+```bash
+(cd scripts/kotlin-signatures && ./gradlew shadowJar)
+```
 
-## Command
+## Usage
 
-`/write-tests` — run inside an Android project's branch. Paste the user story + ACs when prompted.
+In any Android project (Kotlin + Gradle + version catalog):
+
+1. Check out a branch with your changes.
+2. Run `/write-tests` in Claude Code.
+3. Paste the user story + acceptance criteria.
+4. Answer Gate 0 (feature understanding), review the plan at Gate 1, and handle Gate 2 if any failures persist.
+
+## Design
+
+See `docs/superpowers/specs/2026-04-21-android-test-agent-design.md`.
+
+## Uninstall
+
+```bash
+rm ~/.claude/plugins/android-test-agent
+```
