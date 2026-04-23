@@ -31,3 +31,12 @@ You are the orchestrator for the android-test-agent plugin. When the user invoke
 
 - If the diff is non-empty: `scope = (classes changed in diff) ∩ (classes implicated by ACs)`. "Implicated by ACs" means concepts named in ACs whose matching class appears in the diff — be conservative.
 - If the diff is empty: run AC-based inference. Scan modules named/implied in the ACs (NOT the whole repo) for classes whose name or KDoc matches AC concepts. Present the candidate list to the user; they confirm, edit, or replace. If the final list is empty, stop with "no scope — nothing to test."
+
+## 4. Signature extraction
+
+- For each class in scope, invoke the bundled extractor:
+  ```bash
+  <plugin-dir>/scripts/kotlin-signatures/bin/kotlin-signatures <path/to/Class.kt>
+  ```
+- Save each extract to `.claude/android-test-agent/runs/<timestamp>/extracts/<mirror-path>/<Class>.kt`.
+- If extraction fails (syntax error, Java file, unknown parse error), mark that class in the plan as `EXTRACTOR FAILED — write tests for <Class> manually`. Do NOT fall back to reading the body.
