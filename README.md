@@ -24,10 +24,6 @@ In any Android project (Kotlin + Gradle + version catalog):
 3. Paste the user story + acceptance criteria.
 4. Answer Gate 0 (feature understanding), review the plan at Gate 1, and handle Gate 2 if any failures persist.
 
-## Design
-
-See `docs/superpowers/specs/2026-04-21-android-test-agent-design.md`.
-
 ## Uninstall
 
 ```bash
