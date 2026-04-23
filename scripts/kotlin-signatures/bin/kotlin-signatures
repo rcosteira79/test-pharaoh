@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+JAR="$DIR/../build/libs/kotlin-signatures.jar"
+if [[ ! -f "$JAR" ]]; then
+  echo "error: $JAR not found — run ./gradlew shadowJar first" >&2
+  exit 1
+fi
+exec java -jar "$JAR" "$@"
