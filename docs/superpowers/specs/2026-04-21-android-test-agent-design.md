@@ -120,7 +120,12 @@ Dispatched per (class × tier), in parallel where independent. Inputs:
 
 **Hard constraint**: the generator cannot read the body of the class under test. This is enforced at the input boundary — only the extract is placed in context. If the generator decides the signature is insufficient to specify a test, it returns a clarification request; it does not fall back to reading the body.
 
-Writes test file(s) at `src/test/kotlin/<mirror of production package>/` within the same module as the class under test. Fakes needed for dependencies are created alongside, mirroring the production package, not grouped into a `fakes/` subdirectory. Cross-module fake sharing is not automated — the developer can promote a fake manually after generation.
+Writes test file(s) within the same module as the class under test, in the appropriate source set:
+
+- **JVM-backed tiers** (unit, integration with fakes, Roborazzi screenshot) → `src/test/kotlin/<mirror of production package>/`
+- **Instrumented tier** (Cucumber E2E) → `src/androidTest/kotlin/<mirror of production package>/`
+
+Fakes needed for dependencies are created alongside their users, mirroring the production package, not grouped into a `fakes/` subdirectory. Cross-module fake sharing is not automated — the developer can promote a fake manually after generation.
 
 **Augment, do not replace**: when a class in scope already has tests, the generator adds new test methods to the existing file (or creates a sibling file if the structure doesn't fit). It never rewrites or deletes human-authored tests.
 
