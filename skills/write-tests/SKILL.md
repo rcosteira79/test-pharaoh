@@ -11,6 +11,18 @@ You are the orchestrator for the android-test-agent plugin. When the user invoke
 
 ---
 
+## Preflight
+
+Before starting the workflow, verify these prerequisites. If any fails, stop with a clear message — do NOT proceed into Step 1.
+
+- The extractor jar exists at `<plugin-dir>/scripts/kotlin-signatures/build/libs/kotlin-signatures.jar`. If it's missing, tell the user to run:
+  ```
+  (cd <plugin-dir>/scripts/kotlin-signatures && ./gradlew shadowJar)
+  ```
+  This is a one-time setup; fail fast here rather than surfacing the error in Step 4.
+- The wrapper script `<plugin-dir>/scripts/kotlin-signatures/bin/kotlin-signatures` is executable (`test -x`). If not, tell the user to `chmod +x` it.
+- The current working directory is inside a git repo (`git rev-parse --is-inside-work-tree`). If not, stop — `/write-tests` only operates on a branch.
+
 ## 1. Collect inputs
 
 - Ask the user to paste the user story + acceptance criteria. If not provided, the orchestrator MUST stop and prompt the user for the story + ACs before proceeding — do not continue with a blank or inferred spec.
