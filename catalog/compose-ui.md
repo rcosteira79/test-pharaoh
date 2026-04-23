@@ -96,6 +96,9 @@ fun parentStateUnrelatedToChild_doesNotRecomposeChild() {
         Column {
             Text("parent=$unrelated")
             key(Unit) {
+                // This counts recompositions of the hosting scope. To count a child composable's
+                // recompositions, move `SideEffect` inside the composable body or use a test
+                // double of the target composable.
                 SideEffect { childRecompositions++ }
                 CounterScreen(count = 0, onIncrement = {})
             }
