@@ -16,7 +16,7 @@ The plugin exists to eliminate a specific failure mode of ad-hoc "generate tests
 **In scope (v1)**:
 
 - Any Android Kotlin project using Gradle with a version catalog (`libs.versions.toml`).
-- Four test tiers: JVM unit, integration (with hand-written fakes), Roborazzi screenshot, Compose + Cucumber on-device.
+- Four test tiers: JVM unit, integration (with hand-written fakes), Roborazzi screenshot, end-to-end Cucumber on-device (Compose interactions + MockWebServer network stubbing).
 - Personal distribution (installed under `~/.claude/plugins/`), designed for expansion into a shareable form factor.
 
 **Out of scope (v1)**:
@@ -97,6 +97,7 @@ Runs on first invocation or whenever the version-catalog hash changes. Responsib
 - Locate existing fake infrastructure by pattern — class names matching `Fake*`/`*Fake`, source sets under `*/src/test*/` or `*/src/androidTest/`, modules whose name contains `test`/`testing`/`testutils`. "No existing fake infrastructure" is a valid state.
 - Detect mock-library usage (MockK, Mockito). Surfaces later as a refactor proposal; the plugin does not generate new mock-based tests.
 - Detect error-wrapper conventions per module (Box<T> vs Result<T>).
+- Detect Cucumber end-to-end setup: MockWebServer fixture location, hook classes (Before/After, Hilt test-module swaps), response-fixture format, base test class used by Cucumber runners.
 - Read `AGENTS.md` if present.
 
 Writes `.claude/android-test-agent/project-profile.json` with structure including:
@@ -122,6 +123,8 @@ Dispatched per (class × tier), in parallel where independent. Inputs:
 Writes test file(s) at `src/test/kotlin/<mirror of production package>/` within the same module as the class under test. Fakes needed for dependencies are created alongside, mirroring the production package, not grouped into a `fakes/` subdirectory. Cross-module fake sharing is not automated — the developer can promote a fake manually after generation.
 
 **Augment, do not replace**: when a class in scope already has tests, the generator adds new test methods to the existing file (or creates a sibling file if the structure doesn't fit). It never rewrites or deletes human-authored tests.
+
+**Cucumber tier specifics**: Cucumber is end-to-end. For each feature-file scenario, the generator also produces MockWebServer stub fixtures covering the backend calls the feature makes. Stub file locations, response-fixture format, hook wiring, and base test class come from the project profile (populated by Discovery). Feature files are Gherkin; step definitions wire into the detected Cucumber + Hilt test infrastructure and use the project's existing dispatcher/thread-pool setup so timing matches production.
 
 ### 4.4 `failure-analyst` subagent
 
