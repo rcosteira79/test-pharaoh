@@ -94,3 +94,23 @@ For each approved `(class × tier)`, dispatch a `test-generator` subagent in par
 - `existingTestPaths` and `existingFakePaths` for this class (read-allowed).
 
 Aggregate the generator results. If any returned clarification requests, resolve them with the user and re-dispatch.
+
+## 9. Run and triage
+
+For each module where tests were written, run the module-scoped task(s) from the profile:
+
+```bash
+./gradlew <module>:<task>
+```
+
+(Use `profile.modules[module].testTasks` mappings — e.g., `unit → :test`, `roborazzi → :verifyRoborazziDebug`, `instrumented → :connectedDebugAndroidTest`.)
+
+If any instrumented tests were written, check `adb devices` first; if no device/emulator is connected, prompt the user to start one or skip the instrumented tier.
+
+Capture output to `.claude/android-test-agent/runs/<timestamp>/run.log`.
+
+If there are failures, dispatch `failure-analyst`:
+
+- For **mechanical** results, apply the returned patches and re-run. Retry limit: 2.
+- **Loop guard**: if the same test fails with the same error after a patch, escalate directly without retrying.
+- **Substantive** results go straight to Gate 2.
