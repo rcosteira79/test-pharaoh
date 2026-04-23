@@ -111,7 +111,11 @@ git commit -m "chore: create plugin directory skeleton"
 
 ## Phase 1 — `kotlin-signatures` JVM CLI
 
-This phase builds a standalone Kotlin/JVM CLI that takes a `.kt` file path and emits a signatures-only version (no bodies, no initializers, no init blocks). Uses tree-sitter-kotlin via Java bindings. If tree-sitter bindings prove impractical, fall back to `kotlin-compiler-embeddable` PSI — document the choice in the tool's README.
+This phase builds a standalone Kotlin/JVM CLI that takes a `.kt` file path and emits a signatures-only version (no bodies, no initializers, no init blocks).
+
+**Parsing library**: `kotlin-compiler-embeddable` PSI. (The design spec originally listed tree-sitter-kotlin Java bindings as primary with PSI as fallback; during execution we confirmed no stable tree-sitter-kotlin artifact exists on Maven Central under the expected coordinates. `io.github.bonede:tree-sitter4j` exists but is a small third-party wrapper with sustainability risk. `kotlin-compiler-embeddable` is the official Kotlin-team path and the spec's approved fallback — see §4.5 of the design spec.)
+
+**Implementation note for Tasks 1.2–1.8**: the code snippets below still show a tree-sitter-style visitor *for illustration of intent*. The real implementation uses the PSI API — `KtFile`, `KtNamedFunction`, `KtProperty`, `KtClassInitializer`, `KtParameter` — via `KotlinCoreEnvironment` + `PsiFileFactory`. Test assertions and task structure are unchanged; only the parser internals differ. Each task's implementer translates the intent to the appropriate PSI visitor.
 
 ### Task 1.1: Gradle project for the CLI
 
@@ -163,10 +167,8 @@ repositories {
 }
 
 dependencies {
-    // tree-sitter-kotlin via Java bindings
-    implementation("io.github.tree-sitter:ktreesitter:0.25.0")
-    // Kotlin grammar (loaded via tree-sitter-kotlin native)
-    // Fallback note: if bindings unstable, swap to kotlin-compiler-embeddable PSI.
+    // Kotlin compiler embeddable — gives us PSI to parse .kt files.
+    implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.1.0")
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
