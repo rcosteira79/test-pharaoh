@@ -81,3 +81,16 @@ Additionally:
 ## 7. GATE 1 — Plan review
 
 Tell the user the plan is written. They review, edit `TEST_PLAN.md` directly if they want, or answer clarifying questions. **Do not dispatch the generator until the user approves.**
+
+## 8. Generate
+
+For each approved `(class × tier)`, dispatch a `test-generator` subagent in parallel where independent. Inputs to each:
+
+- `signatureExtract`: path to the extract for this class.
+- `tier`.
+- `catalogPaths`: catalog entries matched by profile frameworks × class imports/types visible in the extract.
+- `planExcerpt`: the relevant slice of `TEST_PLAN.md`.
+- `projectProfilePath`.
+- `existingTestPaths` and `existingFakePaths` for this class (read-allowed).
+
+Aggregate the generator results. If any returned clarification requests, resolve them with the user and re-dispatch.
