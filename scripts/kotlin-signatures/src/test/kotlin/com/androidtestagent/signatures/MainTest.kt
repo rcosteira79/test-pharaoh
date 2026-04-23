@@ -213,6 +213,28 @@ class MainTest {
     }
 
     @Test
+    fun `property accessor bodies are stripped`() {
+        val input =
+            """
+            class User(private val first: String, private val last: String) {
+                val full: String
+                    get() = "${'$'}first ${'$'}last"
+                var name: String = ""
+                    set(value) {
+                        field = value.trim()
+                    }
+            }
+            """.trimIndent()
+
+        val output = stripBodies(input)
+
+        assertTrue(output.contains("val full: String"))
+        assertTrue(output.contains("var name: String"))
+        assertFalse(output.contains("\"${'$'}first ${'$'}last\""))
+        assertFalse(output.contains("value.trim()"))
+    }
+
+    @Test
     fun `init blocks are removed entirely`() {
         val input =
             """

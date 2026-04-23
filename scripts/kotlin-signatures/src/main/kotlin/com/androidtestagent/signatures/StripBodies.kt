@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtProperty
+import org.jetbrains.kotlin.psi.KtPropertyAccessor
 import org.jetbrains.kotlin.psi.KtTreeVisitorVoid
 
 /**
@@ -60,6 +61,15 @@ fun stripBodies(source: String): String {
                         ranges += range.startOffset until range.endOffset
                     }
                     super.visitNamedFunction(function)
+                }
+
+                override fun visitPropertyAccessor(accessor: KtPropertyAccessor) {
+                    val body = accessor.bodyExpression
+                    if (body != null) {
+                        val range = body.textRange
+                        ranges += range.startOffset until range.endOffset
+                    }
+                    super.visitPropertyAccessor(accessor)
                 }
 
                 override fun visitAnonymousInitializer(initializer: KtAnonymousInitializer) {
