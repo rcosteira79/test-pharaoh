@@ -195,6 +195,24 @@ class MainTest {
     }
 
     @Test
+    fun `delegated property delegate body is stripped`() {
+        val input =
+            """
+            class Service {
+                val logger by lazy { Logger("svc") }
+                val cache: Cache by Delegates.observable(Cache.empty()) { _, _, _ -> Unit }
+            }
+            """.trimIndent()
+
+        val output = stripBodies(input)
+
+        assertTrue(output.contains("val logger"))
+        assertTrue(output.contains("val cache: Cache"))
+        assertFalse(output.contains("Logger(\"svc\")"))
+        assertFalse(output.contains("Delegates.observable"))
+    }
+
+    @Test
     fun `init blocks are removed entirely`() {
         val input =
             """

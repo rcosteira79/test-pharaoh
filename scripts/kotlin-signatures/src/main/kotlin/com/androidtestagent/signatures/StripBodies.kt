@@ -68,8 +68,7 @@ fun stripBodies(source: String): String {
                     // Entire range is removed, so descending would just queue redundant sub-ranges.
                 }
 
-                // NOTE: this visitor covers `=`-style initializers only.
-                // Delegated properties (`by lazy { ... }`) are handled by Task 1.4a.
+                // NOTE: this visitor covers `=`-style initializers and delegated properties.
                 // Custom accessors (`get() = ...` / `set(value) { ... }`) are handled by Task 1.4b.
                 override fun visitProperty(property: KtProperty) {
                     val equalsToken = property.equalsToken
@@ -82,6 +81,15 @@ fun stripBodies(source: String): String {
                         val rangeEnd = initializer.textRange.endOffset
                         ranges += rangeStart until rangeEnd
                     }
+
+                    val delegate = property.delegate
+                    if (delegate != null) {
+                        val byKeyword = delegate.byKeywordNode
+                        val rangeStart = byKeyword.startOffset
+                        val rangeEnd = delegate.textRange.endOffset
+                        ranges += rangeStart until rangeEnd
+                    }
+
                     super.visitProperty(property)
                 }
 
