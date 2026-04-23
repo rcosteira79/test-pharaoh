@@ -15,9 +15,8 @@ The plugin exists to eliminate a specific failure mode of ad-hoc "generate tests
 
 **In scope (v1)**:
 
-- Android projects written in Kotlin, using Gradle with a version catalog (`libs.versions.toml`).
+- Any Android Kotlin project using Gradle with a version catalog (`libs.versions.toml`).
 - Four test tiers: JVM unit, integration (with hand-written fakes), Roborazzi screenshot, Compose + Cucumber on-device.
-- Target project: `~/Secure/groceries-android` (the Waitrose Groceries app) — first dogfooding target.
 - Personal distribution (installed under `~/.claude/plugins/`), designed for expansion into a shareable form factor.
 
 **Out of scope (v1)**:
@@ -162,7 +161,7 @@ One markdown file per framework. Each file contains:
 - **Detection rule** — version-catalog TOML alias(es) that activate this entry (e.g., `retrofit`, `retrofit-converter-gson`).
 - **Stock edge cases** — the deterministic list of scenarios that should be tested when this pattern is present, regardless of business logic (e.g., 2xx success, 4xx client errors, 5xx server errors, network failure, malformed body, timeout).
 - **Assertion patterns** — short snippets showing how each case is typically asserted in this project.
-- **Gotchas** — framework-specific pitfalls (e.g., OkHttp + coroutines thread-pool coupling for this codebase).
+- **Gotchas** — framework-specific pitfalls (e.g., dispatcher coupling between coroutines and legacy schedulers, scope cancellation timing).
 
 Catalog entries are a deterministic *floor* of coverage. AC-derived cases stack on top.
 
@@ -328,7 +327,7 @@ Invoked via Claude Code subagents. Manual locally for v1; automated once a relia
 
 ### 7.4 End-to-end dogfooding
 
-The first real validation is `/write-tests` against a small real feature branch in `groceries-android`, comparing the generated tests against what would have been hand-written. This is the primary v1 quality bar. Gaps surfaced here feed the backlog.
+The first real validation is `/write-tests` against a small real feature branch in a real Android project (initial dogfooding choice: `~/Secure/groceries-android`), comparing the generated tests against what would have been hand-written. This is the primary v1 quality bar. Gaps surfaced here feed the backlog.
 
 ### 7.5 Does the plugin follow its own medicine?
 
@@ -341,4 +340,4 @@ The first real validation is `/write-tests` against a small real feature branch 
 - Java source support.
 - Automated cross-module fake sharing (currently manual after generation).
 - Automated CI integration for subagent fixtures.
-- Public / shareable distribution — requires generalizing the catalog and discovery rules beyond the `groceries-android` stack.
+- Public / shareable distribution — requires expanding the catalog and discovery rules beyond the frameworks present in the initial dogfooding stack.
