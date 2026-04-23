@@ -60,9 +60,9 @@ fun stripBodies(source: String): String {
                     super.visitNamedFunction(function)
                 }
 
-                // NOTE: this visitor covers `=`-style initializers only. Delegated properties
-                // (`by lazy { ... }`) and custom accessors (`get()`/`set() { ... }`) are not
-                // yet stripped — see backlog for dedicated follow-ups.
+                // NOTE: this visitor covers `=`-style initializers only.
+                // Delegated properties (`by lazy { ... }`) are handled by Task 1.4a.
+                // Custom accessors (`get() = ...` / `set(value) { ... }`) are handled by Task 1.4b.
                 override fun visitProperty(property: KtProperty) {
                     val equalsToken = property.equalsToken
                     val initializer = property.initializer

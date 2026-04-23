@@ -490,6 +490,84 @@ git commit -m "feat(signatures): strip property initializers"
 
 ---
 
+### Task 1.4a: Strip delegated-property delegate bodies
+
+**Files:**
+- Modify: `scripts/kotlin-signatures/src/main/kotlin/com/androidtestagent/signatures/StripBodies.kt`
+- Modify: `scripts/kotlin-signatures/src/test/kotlin/com/androidtestagent/signatures/MainTest.kt`
+
+- [ ] **Step 1: Write failing test**
+
+```kotlin
+@Test
+fun `delegated property delegate body is stripped`() {
+    val input = """
+        class Service {
+            val logger by lazy { Logger("svc") }
+            val cache: Cache by Delegates.observable(Cache.empty()) { _, _, _ -> Unit }
+        }
+    """.trimIndent()
+
+    val output = stripBodies(input)
+
+    assertTrue(output.contains("val logger"))
+    assertTrue(output.contains("val cache: Cache"))
+    assertFalse(output.contains("Logger(\"svc\")"))
+    assertFalse(output.contains("Delegates.observable"))
+}
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+- [ ] **Step 3: Extend `visitProperty`** to also handle the delegate case. `KtProperty.delegate` is a `KtPropertyDelegate` containing `byKeywordNode` + the delegate expression. Strip the range from `byKeywordNode.startOffset` through `delegate.textRange.endOffset` (or preserve the `by` keyword and strip just the expression — your call, but don't leak the body).
+
+- [ ] **Step 4: Run tests, all green**
+
+- [ ] **Step 5: Commit**: `feat(signatures): strip delegated-property delegates`
+
+---
+
+### Task 1.4b: Strip property accessor bodies
+
+**Files:**
+- Modify: `scripts/kotlin-signatures/src/main/kotlin/com/androidtestagent/signatures/StripBodies.kt`
+- Modify: `scripts/kotlin-signatures/src/test/kotlin/com/androidtestagent/signatures/MainTest.kt`
+
+- [ ] **Step 1: Write failing test**
+
+```kotlin
+@Test
+fun `property accessor bodies are stripped`() {
+    val input = """
+        class User(private val first: String, private val last: String) {
+            val full: String
+                get() = "${'$'}first ${'$'}last"
+            var name: String = ""
+                set(value) {
+                    field = value.trim()
+                }
+        }
+    """.trimIndent()
+
+    val output = stripBodies(input)
+
+    assertTrue(output.contains("val full: String"))
+    assertTrue(output.contains("var name: String"))
+    assertFalse(output.contains("\"${'$'}first ${'$'}last\""))
+    assertFalse(output.contains("value.trim()"))
+}
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+- [ ] **Step 3: Override `visitPropertyAccessor`** in `StripBodies.kt` — for each `KtPropertyAccessor`, strip its `bodyExpression` range (handles both `{ ... }` and `= expr` forms, mirroring the function case).
+
+- [ ] **Step 4: Run tests, all green**
+
+- [ ] **Step 5: Commit**: `feat(signatures): strip property accessor bodies`
+
+---
+
 ### Task 1.5: Strip `init {}` blocks
 
 **Files:**
