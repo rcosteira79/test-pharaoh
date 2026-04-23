@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtAnonymousInitializer
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtTreeVisitorVoid
 
@@ -82,6 +83,18 @@ fun stripBodies(source: String): String {
                         ranges += rangeStart until rangeEnd
                     }
                     super.visitProperty(property)
+                }
+
+                override fun visitParameter(parameter: KtParameter) {
+                    val equalsToken = parameter.equalsToken
+                    val defaultValue = parameter.defaultValue
+                    if (equalsToken != null && defaultValue != null) {
+                        // Widen start to include any whitespace before `=`.
+                        val rangeStart = equalsToken.textRange.startOffset
+                        val rangeEnd = defaultValue.textRange.endOffset
+                        ranges += rangeStart until rangeEnd
+                    }
+                    super.visitParameter(parameter)
                 }
             },
         )

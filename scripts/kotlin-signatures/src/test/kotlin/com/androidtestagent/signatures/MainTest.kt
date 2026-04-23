@@ -155,6 +155,29 @@ class MainTest {
     }
 
     @Test
+    fun `kdoc, annotations, generics preserved and default values dropped`() {
+        val input =
+            """
+            /** Fetches a user. */
+            @Deprecated("use v2")
+            fun <T : Any> fetch(
+                id: String,
+                cache: Cache<T> = DefaultCache()
+            ): Result<T> {
+                return Result.success(default)
+            }
+            """.trimIndent()
+
+        val output = stripBodies(input)
+
+        assertTrue(output.contains("/** Fetches a user. */"))
+        assertTrue(output.contains("@Deprecated(\"use v2\")"))
+        assertTrue(output.contains("fun <T : Any> fetch"))
+        assertTrue(output.contains("cache: Cache<T>"))
+        assertFalse(output.contains("DefaultCache()"))
+    }
+
+    @Test
     fun `init blocks are removed entirely`() {
         val input =
             """
