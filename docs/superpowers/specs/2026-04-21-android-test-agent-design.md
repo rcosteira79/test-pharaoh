@@ -11,6 +11,18 @@ A Claude Code plugin that writes appropriate tests for code introduced on an And
 
 The plugin exists to eliminate a specific failure mode of ad-hoc "generate tests from code" tools: tests that verify whatever the implementation does rather than whatever the feature should do. By taking the story and ACs as independent input, and constraining the generator to a signatures-only view of the code under test, the tool can only produce tests traceable to the spec, the type contract, or a pre-registered catalog.
 
+### 1.1 Guiding principles
+
+The plugin's core governing principle is to **adhere to what already exists in the project**. The agent learns the codebase's existing style, conventions, and infrastructure, then matches them — it does not impose a reference style or rewrite what's already there. Everything else flows from this.
+
+- **Conventions from the project, not from the plugin.** Test-file locations, fixture placement, naming, assertion library, fake patterns, runner wiring, dispatcher usage — all discovered from existing code and captured in the project profile, not prescribed.
+- **Augment, do not replace.** Human-authored tests and fixtures are never rewritten. New tests are additive.
+- **Fakes over mocks.** Existing mock-based tests trigger a refactor proposal; the plugin does not generate new mock-based tests.
+- **Signatures only for code under test.** The generator operates on an extract of the target class, not the body — edge cases derive from types, catalog, and ACs, not implementation.
+- **Traceability.** Every planned test cites its source: AC, contract, catalog entry, or "inferred". The reviewer can scan for "inferred" before generation.
+- **Human-in-the-loop gates.** Three review gates — feature understanding, plan, escalation. Orchestration lives in the main session; subagents execute bounded, pre-approved work.
+- **Never silently drop.** Every error surfaces as a clarification question, a plan annotation, or a structured escalation.
+
 ## 2. Scope
 
 **In scope (v1)**:
