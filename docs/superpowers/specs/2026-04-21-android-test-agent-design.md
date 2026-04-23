@@ -97,6 +97,7 @@ Runs on first invocation or whenever the version-catalog hash changes. Responsib
 - Locate existing fake infrastructure by pattern — class names matching `Fake*`/`*Fake`, source sets under `*/src/test*/` or `*/src/androidTest/`, modules whose name contains `test`/`testing`/`testutils`. "No existing fake infrastructure" is a valid state.
 - Detect mock-library usage (MockK, Mockito). Surfaces later as a refactor proposal; the plugin does not generate new mock-based tests.
 - Detect error-wrapper conventions per module (Box<T> vs Result<T>).
+- Detect existing test-fixture conventions across all tiers: fixture directory paths (e.g., `src/test/resources/`, `src/androidTest/assets/`), sub-directory organization (by feature, by test class, by domain), file naming patterns, and formats (JSON, binary). Used later to place new fixtures consistently.
 - Detect Cucumber end-to-end setup: MockWebServer fixture location, hook classes (Before/After, Hilt test-module swaps), response-fixture format, base test class used by Cucumber runners.
 - Read `AGENTS.md` if present.
 
@@ -128,6 +129,8 @@ Writes test file(s) within the same module as the class under test, in the appro
 Fakes needed for dependencies are created alongside their users, mirroring the production package, not grouped into a `fakes/` subdirectory. Cross-module fake sharing is not automated — the developer can promote a fake manually after generation.
 
 **Augment, do not replace**: when a class in scope already has tests, the generator adds new test methods to the existing file (or creates a sibling file if the structure doesn't fit). It never rewrites or deletes human-authored tests.
+
+**Fixtures follow existing conventions**: for any fixture type (JSON test data, MockWebServer response bodies, Roborazzi golden images, etc.), the generator places new fixtures in the same directory and sub-directory structure as existing fixtures of that type, using the same naming and file-format conventions (all detected by Discovery). If no fixtures of a given type exist in the project, fall back to the standard location per source set: `src/test/resources/` for JVM tiers, `src/androidTest/assets/` for instrumented.
 
 **Cucumber tier specifics**: Cucumber is end-to-end. For each feature-file scenario, the generator also produces MockWebServer stub fixtures covering the backend calls the feature makes. Stub file locations, response-fixture format, hook wiring, and base test class come from the project profile (populated by Discovery). Feature files are Gherkin; step definitions wire into the detected Cucumber + Hilt test infrastructure and use the project's existing dispatcher/thread-pool setup so timing matches production.
 
