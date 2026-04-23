@@ -6,7 +6,7 @@ Screenshot (pixel-diff) testing for Jetpack Compose UIs via Roborazzi. Roborazzi
 
 ## Detection rule
 
-- `androidTests-roborazzi-roborrazi`
+- `androidTests-roborazzi-roborazzi`
 - `androidTests-roborazzi-compose`
 - `androidTests-roborazzi-junit-rule`
 - plugin `io.github.takahirom.roborazzi`
