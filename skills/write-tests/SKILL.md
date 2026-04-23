@@ -114,3 +114,16 @@ If there are failures, dispatch `failure-analyst`:
 - For **mechanical** results, apply the returned patches and re-run. Retry limit: 2.
 - **Loop guard**: if the same test fails with the same error after a patch, escalate directly without retrying.
 - **Substantive** results go straight to Gate 2.
+
+## 10. GATE 2 — Escalation (on persistent failure)
+
+Write `diagnosis.md` under `.claude/android-test-agent/runs/<timestamp>/` containing:
+
+- Summary: `N passed / M failed / K skipped`.
+- Per failed test: file path, failure type, most-likely cause, suggested fix path.
+
+Tell the user the run is stopped and point them at the diagnosis. The run directory retains `TEST_PLAN.md`, generated files, `run.log`, and the diagnosis — they can resume manually.
+
+## 11. Completion
+
+On clean run, print the summary, commit the generated tests on behalf of the user *only if they explicitly ask*, and stop.
