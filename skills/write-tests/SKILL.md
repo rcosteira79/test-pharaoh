@@ -26,3 +26,8 @@ You are the orchestrator for the android-test-agent plugin. When the user invoke
 - Otherwise dispatch the `project-discoverer` subagent with the repo root as input. It writes a fresh profile.
 - If no `libs.versions.toml` exists, the discoverer falls back to scanning `build.gradle.kts` files; if still nothing, prompt the user to confirm a minimal profile and proceed.
 - Read the profile once done.
+
+## 3. Scope
+
+- If the diff is non-empty: `scope = (classes changed in diff) ∩ (classes implicated by ACs)`. "Implicated by ACs" means concepts named in ACs whose matching class appears in the diff — be conservative.
+- If the diff is empty: run AC-based inference. Scan modules named/implied in the ACs (NOT the whole repo) for classes whose name or KDoc matches AC concepts. Present the candidate list to the user; they confirm, edit, or replace. If the final list is empty, stop with "no scope — nothing to test."
