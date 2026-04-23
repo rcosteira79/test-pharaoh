@@ -42,10 +42,11 @@ class MainTest {
         assertTrue(output.contains("class Greeter"))
         assertTrue(output.contains("fun hello(name: String): String"))
         assertFalse(output.contains("return \"Hello"))
+        assertFalse(output.contains("Hello, "))
     }
 
     @Test
-    fun `nested (local) function inside an outer body does not crash the stripper`() {
+    fun `overlapping range from an outer body enclosing a local function does not throw`() {
         val input =
             """
             fun outer() {
@@ -58,9 +59,30 @@ class MainTest {
 
         // The outer's body is stripped. We don't assert anything about the inner
         // (it's gone either way because the outer's body removal includes it).
-        // The key property: stripBodies completes without an exception.
+        // The key property: stripBodies completes without an exception even when
+        // the inner body range overlaps with already-deleted territory.
         val output = stripBodies(input)
 
         assertTrue(output.contains("fun outer()"))
+    }
+
+    @Test
+    fun `multiple top-level functions all have bodies stripped`() {
+        val input =
+            """
+            fun a(): Int {
+                return 1
+            }
+            fun b(): Int {
+                return 2
+            }
+            """.trimIndent()
+
+        val output = stripBodies(input)
+
+        assertTrue(output.contains("fun a(): Int"))
+        assertTrue(output.contains("fun b(): Int"))
+        assertFalse(output.contains("return 1"))
+        assertFalse(output.contains("return 2"))
     }
 }
