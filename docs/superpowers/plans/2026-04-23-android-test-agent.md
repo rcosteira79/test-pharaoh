@@ -62,6 +62,9 @@ scripts/kotlin-signatures/.gradle/
 # Generated fat jar in final location (keep only the committed release jar)
 # (comment out once we decide what to commit)
 
+# Worktrees
+.worktrees/
+
 # OS noise
 .DS_Store
 ```
