@@ -14,8 +14,3 @@ fun main(args: Array<String>) {
     val output = stripBodies(source)
     print(output)
 }
-
-fun stripBodies(source: String): String {
-    // Placeholder: implemented across later tasks.
-    return source
-}
