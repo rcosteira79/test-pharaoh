@@ -25,6 +25,12 @@ Dependency injection via Hilt (the Dagger-based Android DI library). The tests i
 Tests run under `@HiltAndroidTest` with the `HiltAndroidRule`, `HiltTestApplication`, and a Hilt-aware test runner. Override modules with `@UninstallModules` + a test-local `@Module @InstallIn` or with `@TestInstallIn`.
 
 ```kotlin
+@Module
+@InstallIn(SingletonComponent::class)
+object TestNetworkModule {
+    @Provides fun provideApi(): UserApi = FakeUserApi()
+}
+
 @HiltAndroidTest
 @UninstallModules(NetworkModule::class)
 class UserRepositoryHiltTest {
@@ -43,12 +49,6 @@ class UserRepositoryHiltTest {
     fun `repository is injected with fake network`() {
         assertThat(repository).isNotNull()
         assertThat(repository.api).isInstanceOf(FakeUserApi::class.java)
-    }
-
-    @Module
-    @InstallIn(SingletonComponent::class)
-    object TestNetworkModule {
-        @Provides fun provideApi(): UserApi = FakeUserApi()
     }
 }
 ```
