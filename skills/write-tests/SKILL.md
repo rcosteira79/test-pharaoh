@@ -29,7 +29,13 @@ Before collecting the story + ACs, ask the user where tests should be written:
 
 - **(a) Current branch** — work on the branch already checked out. Generated tests land here. Pick this if you already have a feature branch ready.
 - **(b) New branch** — create a new branch off `HEAD`. Suggest a name based on the feature (e.g., `tests/<feature-slug>`); let the user override. Run: `git checkout -b <name>`.
-- **(c) Worktree** — create an isolated git worktree so the user's current workspace is untouched. Invoke the `superpowers:using-git-worktrees` skill for directory selection + safety verification (`.worktrees/` vs `worktrees/`, CLAUDE.md preference, gitignore check). Do NOT attempt to set up the worktree manually.
+- **(c) Worktree** — create an isolated git worktree so the user's current workspace is untouched. Do this inline; do not invoke any other skill.
+
+  1. Pick a worktree parent directory. Prefer existing `.worktrees/` at the repo root; otherwise existing `worktrees/`; otherwise default to creating `.worktrees/`.
+  2. Verify the parent is gitignored — probe with `git check-ignore -q <parent>/probe`. If not ignored, add the dir to `.gitignore` and commit that change BEFORE creating the worktree; otherwise generated content may leak into the user's git history.
+  3. Ask the user for a branch name. Suggest `tests/<feature-slug>` based on the story title; accept overrides.
+  4. Create the worktree: `git worktree add <parent>/<dir-safe-name> -b <branch-name>`. Replace `/` with `-` in the directory path only; keep the branch name as-is.
+  5. `cd` into the new worktree. Continue to Step 1 from there.
 
 Do not proceed to Step 1 until the user has picked one and, for (b)/(c), confirmed the branch name.
 
