@@ -13,7 +13,7 @@ You are the orchestrator for the android-test-agent plugin. When the user invoke
 
 ## 1. Collect inputs
 
-- Ask the user to paste the user story + acceptance criteria. If not provided, prompt and wait.
+- Ask the user to paste the user story + acceptance criteria. If not provided, the orchestrator MUST stop and prompt the user for the story + ACs before proceeding — do not continue with a blank or inferred spec.
 - Determine the parent branch:
   1. Read `.claude/android-test-agent/config.json`. If `parentBranch` is set, use it.
   2. Otherwise, check for local branches `develop`, `main`, `master` (in that order). Use the first one that exists.
@@ -77,6 +77,7 @@ For each class in scope and each applicable tier (unit, integration, roborazzi, 
 Additionally:
 - Attach any **clarification questions** (things contract + catalog leave ambiguous).
 - If existing tests rely on mocks, add a **refactor proposal** section offering to migrate them to fakes before writing new tests.
+- If the project profile detected a framework but no matching `catalog/<framework>.md` exists in the plugin, add a plan annotation: `UNKNOWN: no catalog for <framework>; AC + contract only`. The user can add a catalog file mid-flow or accept the narrower coverage.
 
 ## 7. GATE 1 — Plan review
 
@@ -95,6 +96,8 @@ For each approved `(class × tier)`, dispatch a `test-generator` subagent in par
 
 Aggregate the generator results. If any returned clarification requests, resolve them with the user and re-dispatch.
 
+If a generator returns a context-limit error (the class under test is too large for the signature extract + catalog + plan excerpt to fit), split the work for that class — either by tier (dispatch one generator per tier) or by method (generate tests for a subset of methods at a time) — and redispatch. Do not skip the class silently.
+
 ## 9. Run and triage
 
 For each module where tests were written, run the module-scoped task(s) from the profile:
@@ -109,11 +112,14 @@ If any instrumented tests were written, check `adb devices` first; if no device/
 
 Capture output to `.claude/android-test-agent/runs/<timestamp>/run.log`.
 
+Apply a per-Gradle-task timeout (default 5 minutes). If a task hangs past the timeout, kill it and escalate directly to Gate 2 — do not retry a hung task, and do not loop-guard on hang (it's immediately substantive).
+
 If there are failures, dispatch `failure-analyst`:
 
-- For **mechanical** results, apply the returned patches and re-run. Retry limit: 2.
+- For **mechanical** results, apply the returned patches and re-run. Retry limit: ≤2 retries per failing test. The limit applies per test, not globally, so a run with many mechanical failures can accumulate more than 2 total retries across the suite.
 - **Loop guard**: if the same test fails with the same error after a patch, escalate directly without retrying.
 - **Substantive** results go straight to Gate 2.
+- If a mechanical patch fails to apply (conflict with a file the user edited mid-run), escalate that test to Gate 2 with the patch and the conflict details so the user can resolve manually.
 
 ## 10. GATE 2 — Escalation (on persistent failure)
 
