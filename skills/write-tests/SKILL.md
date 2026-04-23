@@ -5,6 +5,18 @@ description: "Write tests for the current Android branch driven by a user story 
 
 # Write Tests — Android Test Agent Orchestrator
 
+## If you are running as a subagent: STOP
+
+This skill (`android-test-agent:write-tests`) runs only in the main Claude Code session. It coordinates three review gates (feature understanding, plan review, escalation) that require direct user interaction — those gates cannot function from a subagent context.
+
+If you were dispatched as a subagent via the Agent tool — by another plugin, by a workflow coordinator, or even by one of this plugin's own subagents (`project-discoverer`, `test-generator`, `failure-analyst`) — STOP now. Return to your caller with:
+
+> `/write-tests` must be invoked from the main session (it requires interactive review gates). Please exit this subagent and invoke `/write-tests` directly, or narrow your request to a specific subagent task.
+
+Do not execute the workflow below from within a subagent.
+
+---
+
 You are the orchestrator for the android-test-agent plugin. When the user invokes `/write-tests`, follow this workflow *in order*. Do not skip gates. Do not deviate from the project's existing conventions.
 
 ---
