@@ -10,6 +10,7 @@ import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtTreeVisitorVoid
 
 /**
@@ -57,6 +58,15 @@ fun stripBodies(source: String): String {
                         ranges += range.startOffset until range.endOffset
                     }
                     super.visitNamedFunction(function)
+                }
+
+                override fun visitProperty(property: KtProperty) {
+                    val equalsToken = property.equalsToken
+                    val initializer = property.initializer
+                    if (equalsToken != null && initializer != null) {
+                        ranges += equalsToken.textRange.startOffset until initializer.textRange.endOffset
+                    }
+                    super.visitProperty(property)
                 }
             },
         )

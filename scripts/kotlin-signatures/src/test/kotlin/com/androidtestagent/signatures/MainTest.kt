@@ -85,4 +85,22 @@ class MainTest {
         assertFalse(output.contains("return 1"))
         assertFalse(output.contains("return 2"))
     }
+
+    @Test
+    fun `property initializer is stripped`() {
+        val input =
+            """
+            class Config {
+                val endpoint: String = "https://api.example.com"
+                var retries: Int = 3
+            }
+            """.trimIndent()
+
+        val output = stripBodies(input)
+
+        assertTrue(output.contains("val endpoint: String"))
+        assertTrue(output.contains("var retries: Int"))
+        assertFalse(output.contains("https://api.example.com"))
+        assertFalse(output.contains("= 3"))
+    }
 }
