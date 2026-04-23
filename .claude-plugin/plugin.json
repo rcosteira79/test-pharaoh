@@ -1,0 +1,20 @@
+{
+  "name": "android-test-agent",
+  "description": "Writes tests for code introduced on an Android branch, driven by the branch's user story and ACs. Adheres to the project's existing conventions; never generates mock-based tests.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Ricardo Costeira"
+  },
+  "license": "MIT",
+  "keywords": [
+    "android",
+    "kotlin",
+    "testing",
+    "tdd",
+    "bdd",
+    "cucumber",
+    "roborazzi",
+    "compose",
+    "hilt"
+  ]
+}
