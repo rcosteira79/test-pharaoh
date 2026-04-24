@@ -51,7 +51,9 @@ Do not proceed to Step 1 until the user has picked one and, for (b)/(c), confirm
 
 ## 1. Collect inputs
 
-- Ask the user to paste the user story + acceptance criteria. If not provided, the orchestrator MUST stop and prompt the user for the story + ACs before proceeding — do not continue with a blank or inferred spec.
+- Inputs from the user:
+  - **User story + acceptance criteria** (required). If the user invoked `/test-scribe` with these inline, use them; otherwise stop and prompt. Never continue with a blank or inferred spec.
+  - **Any other relevant context** (optional) — design decisions, product intent, edge cases the user wants emphasised, links to prior discussions or PRs. Weave into Gate 0 reasoning and plan synthesis. Do not prompt for it if not offered; just accept it when given.
 - Determine the parent branch:
   1. Read `.claude/test-pharaoh/config.json`. If `parentBranch` is set, use it.
   2. Otherwise, check for local branches `develop`, `main`, `master` (in that order). Use the first one that exists.

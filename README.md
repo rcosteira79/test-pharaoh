@@ -27,16 +27,20 @@ In your Android repo, on a branch with your feature changes:
 /test-scribe
 ```
 
-The scribe will:
+You can invoke it bare and the scribe will prompt you, or pass the inputs inline with the command. The scribe takes:
 
-1. Ask where to work — current branch, a new branch, or an isolated git worktree.
-2. Prompt you for the user story + acceptance criteria.
-3. **Gate 0 — feature understanding.** The scribe summarises what it believes the feature does; you confirm or correct. Iterates until you approve.
-4. Synthesize `TEST_PLAN.md` with traceability markers (AC-N → test name).
-5. **Gate 1 — plan review.** You read the plan, edit freely, approve.
-6. Generate tests in parallel across `(class × tier)` units.
-7. Run the Gradle tasks from your project profile; triage failures (mechanical patches retry ≤ 2×).
-8. **Gate 2 — escalation** (only on persistent substantive failures). The physician writes a diagnosis; you rule.
+- **User story + acceptance criteria** (required) — the spec that commissioned the feature.
+- **Any other relevant context** (optional, recommended) — design decisions, product intent, edge cases worth emphasising, links to prior discussions or PRs. The more context the scribe has, the sharper Gate 0 and the resulting plan.
+
+Then:
+
+1. Asks where to work — current branch, a new branch, or an isolated git worktree.
+2. **Gate 0 — feature understanding.** Summarises what it believes the feature does; you confirm or correct. Iterates until you approve.
+3. Synthesizes `TEST_PLAN.md` with traceability markers (AC-N → test name).
+4. **Gate 1 — plan review.** You read the plan, edit freely, approve.
+5. Generates tests in parallel across `(class × tier)` units.
+6. Runs the Gradle tasks from your project profile; triages failures (mechanical patches retry ≤ 2×).
+7. **Gate 2 — escalation** (only on persistent substantive failures). The physician writes a diagnosis; you rule.
 
 ## The court
 
