@@ -8,23 +8,16 @@ Write tests for Android feature branches from your user story + acceptance crite
 
 - [Claude Code](https://claude.com/claude-code)
 - An Android project (Kotlin + Gradle — version catalog strongly preferred)
-- JDK 17+ to build the bundled signature extractor
+- JDK 17+ on `PATH` (the plugin builds a small signature-extractor JAR the first time you invoke it)
 
 ## Install
 
-Clone the repo and build the extractor jar (one-time):
-
-```bash
-git clone https://github.com/rcosteira79/test-pharaoh.git
-(cd test-pharaoh/plugins/test-pharaoh/scripts/kotlin-signatures && ./gradlew shadowJar)
 ```
-
-Then register the local marketplace with Claude Code:
-
-```
-/plugin marketplace add /absolute/path/to/test-pharaoh
+/plugin marketplace add rcosteira79/test-pharaoh
 /plugin install test-pharaoh@test-pharaoh
 ```
+
+The first `/test-scribe` invocation performs a one-time ~30s build of the bundled signature extractor. Subsequent runs skip it. Plugin updates trigger a rebuild on the next run.
 
 ## Usage
 

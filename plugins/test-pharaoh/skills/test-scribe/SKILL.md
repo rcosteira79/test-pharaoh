@@ -25,11 +25,11 @@ You are the orchestrator for the test-pharaoh plugin. When the user invokes `/te
 
 Before starting the workflow, verify these prerequisites. If any fails, stop with a clear message — do NOT proceed into Step 1.
 
-- The extractor jar exists at `<plugin-dir>/scripts/kotlin-signatures/build/libs/kotlin-signatures.jar`. If it's missing, tell the user to run:
+- The extractor jar must exist at `<plugin-dir>/scripts/kotlin-signatures/build/libs/kotlin-signatures.jar`. If it's missing (fresh install, or post-`/plugin update` which wipes `build/`), build it yourself before continuing:
   ```
   (cd <plugin-dir>/scripts/kotlin-signatures && ./gradlew shadowJar)
   ```
-  This is a one-time setup; fail fast here rather than surfacing the error in Step 4.
+  Tell the user you're doing a one-time ~30s build of the signature extractor. Requires JDK 17+. If the build fails (e.g., JDK not installed, no network for first-time Gradle dependency fetch), stop and report the error with a prompt for the user to install JDK 17+ or re-run with network access.
 - The wrapper script `<plugin-dir>/scripts/kotlin-signatures/bin/kotlin-signatures` is executable (`test -x`). If not, tell the user to `chmod +x` it.
 - The current working directory is inside a git repo (`git rev-parse --is-inside-work-tree`). If not, stop — `/test-scribe` only operates on a branch.
 
