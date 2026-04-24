@@ -1,6 +1,0 @@
-{
-  "name": "android-test-agent",
-  "version": "0.1.0",
-  "description": "Writes tests for Android branches from user stories and ACs, with code-under-test exposed only as signatures.",
-  "type": "module"
-}

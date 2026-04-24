@@ -1,0 +1,36 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "test-pharaoh",
+  "description": "Write tests for Android feature branches from user story + ACs. Adheres to existing conventions, never uses mocks.",
+  "owner": {
+    "name": "Ricardo Costeira"
+  },
+  "metadata": {
+    "description": "Claude Code plugin that writes tests for Android feature branches — driven by the user story + ACs, adhering to your project's existing conventions, and never using mocks. Three subagents cooperate: architect (project discovery), mason (test generation), physician (failure triage).",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "test-pharaoh",
+      "source": "./plugins/test-pharaoh",
+      "description": "Write tests for Android feature branches from user story + ACs. Adheres to existing conventions, never uses mocks.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Ricardo Costeira"
+      },
+      "repository": "https://github.com/rcosteira79/test-pharaoh",
+      "license": "MIT",
+      "keywords": [
+        "android",
+        "kotlin",
+        "testing",
+        "tdd",
+        "bdd",
+        "cucumber",
+        "roborazzi",
+        "compose",
+        "hilt"
+      ]
+    }
+  ]
+}
