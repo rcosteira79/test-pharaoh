@@ -37,10 +37,12 @@ Then:
 1. Asks where to work — current branch, a new branch, or an isolated git worktree.
 2. **Gate 0 — feature understanding.** Summarises what it believes the feature does; you confirm or correct. Iterates until you approve.
 3. Synthesizes `TEST_PLAN.md` with traceability markers (AC-N → test name).
-4. **Gate 1 — plan review.** You read the plan, edit freely, approve.
+4. **Gate 1 — plan review.** Two stages: you review and edit `TEST_PLAN.md`; then an explicit, standalone go-signal before any code is generated. (Generic approvals like "looks good" don't unlock generation. If your ACs contain user-interaction signals, the scribe also asks at this gate whether to include the instrumented tier.)
 5. Generates tests in parallel across `(class × tier)` units.
 6. Runs the Gradle tasks from your project profile; triages failures (mechanical patches retry ≤ 2×).
 7. **Gate 2 — escalation** (only on persistent substantive failures). The physician writes a diagnosis; you rule.
+
+All artefacts (plan, run log, diagnosis, signature extracts) are written under `.claude/test-pharaoh/runs/<timestamp>/` so you can inspect or resume manually.
 
 ## The court
 
@@ -48,14 +50,14 @@ Then:
 |---|---|---|
 | Commander | **You**, the Pharaoh | Commission the work. Rule on the three gates. |
 | Coordinator | `test-scribe` | Record your decree. Commission the build. Report. |
-| Surveyor | `architect` | Reads `libs.versions.toml`, module configs, existing fakes, mock-library usage, error-wrapper conventions. Never touches class bodies. |
+| Surveyor | `architect` | Reads `libs.versions.toml`, module configs, existing fakes, mock-library usage, error-wrapper conventions, instrumented-tier framework, and the project's test-naming style. Never touches class bodies. |
 | Builder | `mason` | One `(class × tier)` per invocation. Hand-written fakes only. Sees signatures, never bodies. |
 | Healer | `physician` | Triages Gradle failures. Mechanical → patch and retry. Substantive → escalate to the Pharaoh. |
 
 ## Principles
 
 - **Never mocks.** Hand-written fakes only. If your existing tests use MockK or Mockito, Gate 1 proposes migrating them first.
-- **Signatures only.** The mason never reads the body of the class under test — tests are written against the contract, not the implementation. Prevents tautological "whatever the code does must be right" tests.
+- **Signatures only.** Production code bodies are never read at any step of the workflow; only the bundled extractor exposes signature views. Tests are written against the contract, not the implementation — preventing tautological "whatever the code does must be right" tests.
 - **Adhere to your conventions.** Fixture placement, dispatcher patterns, error wrappers, assertion libraries, runner wiring — all match what the architect detects in your project.
 
 ## Tiers supported
@@ -63,7 +65,7 @@ Then:
 - **Unit** — JUnit 5 + assertion library per your profile.
 - **Integration** — real class + real collaborators; fakes only at IO boundaries.
 - **Roborazzi** — one `@Test` per visual variant (light/dark/RTL/large-font/tablet).
-- **Cucumber** — Gherkin features + step defs + MockWebServer, wired into your Hilt test infrastructure.
+- **Instrumented (end-to-end)** — runs on device/emulator. The architect detects your project's setup (Cucumber, Espresso, Compose UI Test, Kaspresso, Barista, …) and writes tests in the matching style.
 
 ## Framework catalog
 
