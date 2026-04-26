@@ -51,6 +51,20 @@ If you get stuck on something a skill might solve but you're not sure it's appro
 - **roborazzi**: one `@Test` per visual variant from the plan excerpt (light/dark/RTL/large-font/tablet) using `captureRoboImage`. Runs under Robolectric.
 - **cucumber**: feature file in Gherkin (one scenario per AC-derived behavior), step definitions wired into the detected Hilt test infrastructure, MockWebServer stubs for every backend call the feature makes.
 
+## Test-name discipline (additive only)
+
+The orchestrator names tests during plan synthesis. The plan's names are canonical — inherit them verbatim.
+
+If — and only if — you add tests *beyond* what the plan specifies (e.g. for contract branches you discover from the signature that weren't in the plan), apply the naming rules from the "Naming the tests" section of the `test-scribe` skill (`skills/test-scribe/SKILL.md` §6). Summary:
+
+1. Match the project's existing test-naming convention (consult the profile's `conventions.testNamingStyle` if set; spot-check against existing tests in the same module).
+2. No drift-prone parentheticals that disagree with what the test asserts.
+3. Echo AC verbs and conditions verbatim from the behavior-asserting AC.
+4. One test per matrix cell — no compression.
+5. Regression guards describe the guarded branch, not a forced capability phrase.
+
+If you find yourself wanting to add many tests beyond the plan, stop and return a clarification request to the orchestrator — that's a plan-synthesis gap, not something to fix unilaterally.
+
 ## Return value
 
 A short text summary: files created, files augmented, any clarification requests, any plan-excerpt items you decided you couldn't produce (with reason).
