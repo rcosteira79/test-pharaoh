@@ -39,9 +39,17 @@ If you get stuck on something a skill might solve but you're not sure it's appro
 5. Detect mock-library usage (MockK, Mockito) across test source sets. Record for the refactor-proposal step.
 6. Detect error-wrapper conventions per module: `Result<…>`, `Either<…>`, or custom wrapper types (scan for wrapper types in `src/main/kotlin/`).
 7. Detect test-fixture conventions: directory paths, sub-directory organization, file naming, formats.
-8. Detect Cucumber end-to-end setup if cucumber-android / cucumber-android-hilt present: MockWebServer fixture location, hook classes, response-fixture format, base test class.
-9. Read `AGENTS.md` if present at repo root; capture notable conventions as a string list.
-10. Hash `libs.versions.toml` (SHA-256 hex) and write the profile.
+8. **Detect the instrumented (end-to-end) tier setup.** Scan for any supported framework under `src/androidTest` and record the dominant setup:
+    - **Cucumber**: `cucumber-android` / `cucumber-android-hilt` / `cucumber-jvm` dependencies. Capture: feature-file location, step-definition packages, hook classes, MockWebServer fixture location, response format, base test class, instrumentation runner.
+    - **Espresso / AndroidX Test**: `androidx.test.espresso:*`, `androidx.test.ext:junit`. Capture: instrumentation runner, base test classes, MockWebServer setup, test-rule conventions.
+    - **Compose UI Test**: `androidx.compose.ui:ui-test-junit4` with tests using `createAndroidComposeRule` / `createComposeRule`. Capture: rule-composition patterns, Hilt integration, test-tag naming conventions.
+    - **Framework wrappers** (Kaspresso, Barista, etc.): detect from dependencies and note the wrapper.
+    - **None**: if no instrumented framework is detected, record `instrumentedTier.present = false`.
+
+    Pick the single **tier name** the orchestrator should use when listing tests in plans — e.g. `"cucumber"`, `"espresso"`, `"compose-ui"`, `"instrumented"`. If multiple frameworks coexist, pick the one that hosts the majority of existing instrumented tests. Also record *all* detected framework aliases under `frameworks` for downstream reference.
+9. Detect the dominant **test-naming style** by sampling 5–10 existing unit test files across the project (prefer the largest test-bearing modules). Classify each test function name and pick the dominant style. Valid values: `backticked-prose` (e.g. `` `Provides initial state for online mode` ``), `snake_case` (e.g. `onSubmit_validCreds_emitsSuccess`), `camelCase` (e.g. `onSubmitEmitsSuccess`), `mixed` (no clear majority), or `unknown` (fewer than 5 sampleable test functions). Record under `conventions.testNamingStyle`.
+10. Read `AGENTS.md` if present at repo root; capture notable conventions as a string list.
+11. Hash `libs.versions.toml` (SHA-256 hex) and write the profile.
 
 ## Output
 
@@ -62,14 +70,22 @@ Write JSON to `.claude/test-pharaoh/project-profile.json` with schema:
   "conventions": {
     "mockLibrary": "mockk | mockito | null",
     "dispatcher": "<how coroutines dispatchers are provided>",
-    "fixtureRoots": { "<tier>": "<path>" }
+    "fixtureRoots": { "<tier>": "<path>" },
+    "testNamingStyle": "backticked-prose | snake_case | camelCase | mixed | unknown"
   },
-  "cucumber": {
-    "present": true,
-    "mockWebServerFixtures": "<path>",
+  "instrumentedTier": {
+    "present": true | false,
+    "tierName": "cucumber | espresso | compose-ui | instrumented | other | null",
+    "frameworks": ["cucumber-android-hilt", "androidx-test-espresso", "compose-ui-test", "…"],
+    "runner": "<instrumentation runner class | null>",
+    "baseTestClass": "<class | null>",
+    "fixtures": {
+      "mockWebServer": "<path | null>",
+      "featureFiles": "<path | null>",
+      "responseFormat": "json | … | null"
+    },
     "hookClasses": ["…"],
-    "baseTestClass": "<class>",
-    "responseFormat": "json | … "
+    "notes": "<free-form notes about the setup | null>"
   },
   "notesFromAgentsMd": ["…"]
 }
