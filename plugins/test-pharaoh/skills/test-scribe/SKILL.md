@@ -139,17 +139,22 @@ Use `$TIMESTAMP` consistently throughout this workflow for every artefact:
 
 ## 5. GATE 0 — Feature understanding
 
-Write a short inline summary (3–5 bullets) covering:
+Open with a short inline summary (3–5 bullets) as an anchor:
 
 - What the feature does (one-sentence goal).
 - Who uses it / when it fires.
 - What the ACs collectively imply beyond their literal text.
 - Which classes / subsystems are touched.
+- Behaviours/subsystems adjacent to the diff that are explicitly OUT of test scope (and why) — see the `## Out of scope` annotation in Step 6.
 - Any ambiguities you cannot resolve from inputs alone.
 
-Ask: "Does this match what you intended? Anything I missed or misinterpreted?"
+Then, instead of a single "does this look right?" question, **interview the user one question at a time** until the feature is unambiguous. Walk the feature's decision branches in dependency order — scope, undo/revert behaviour, error and empty/null paths, idempotence, concurrency, per-tier coverage — resolving each before moving to the next. For every question, propose your recommended answer ("I'd assume X because AC-2 says Y — correct?") so the user confirms or corrects rather than starting from a blank page. Ask, wait for the reply, then ask the next. A foundational misunderstanding caught here is cheap; at later gates it costs plan synthesis or generated tests.
 
-**Loop until the user confirms.** Only then proceed. Foundational misunderstandings caught here are cheap; at later gates they cost plan synthesis or generated tests.
+**Self-answer what you can — from the right sources only.** If a question is answerable from `project-profile.json`, module structure, `git diff`, `grep`-by-name, or an existing signature extract, answer it yourself instead of asking the user. **Never read a production `.kt`/`.java` body to self-answer** — the source-reading discipline above holds at this gate too. (This is the one place the technique departs from a generic grilling skill: "explore the codebase to answer it" means the extractor and existing tests here, never the production body.)
+
+**Surface contradictions against the observable surface.** If the user's AC narrative conflicts with what a signature extract or an existing test file shows, raise it verbatim — "the extract for `X` exposes only `Y`; you said `Z` is possible — which is right?" Check the user's claims against the *extract and existing tests*, never against production bodies.
+
+**Loop until the user confirms.** Only then proceed.
 
 ## 6. Plan synthesis
 
@@ -229,6 +234,7 @@ For each class in scope and each applicable tier (unit, integration, roborazzi, 
 
 Additionally:
 - Attach any **clarification questions** (things contract + catalog leave ambiguous).
+- Add an **`## Out of scope`** section listing behaviours/subsystems adjacent to the diff, or named near the ACs, that this plan deliberately does NOT cover — one line each with a reason (e.g. `- analytics events — not in the diff; covered by a separate suite`). Derive these from class/subsystem names only (`git diff --name-only` + AC-concept grep), never from class bodies. It stops over-testing adjacent code the diff and ACs don't ask for, and gives the user an explicit boundary to challenge at Gate 1.
 - If existing tests rely on mocks, add a **refactor proposal** section offering to migrate them to fakes before writing new tests.
 - If the project profile detected a framework but no matching `catalog/<framework>.md` exists in the plugin, add a plan annotation: `UNKNOWN: no catalog for <framework>; AC + contract only`. The user can add a catalog file mid-flow or accept the narrower coverage.
 
@@ -338,6 +344,17 @@ Write `diagnosis.md` under `.claude/test-pharaoh/runs/<timestamp>/` containing:
 
 Tell the user the run is stopped and point them at the diagnosis. The run directory retains `TEST_PLAN.md`, generated files, `run.log`, and the diagnosis — they can resume manually.
 
-## 11. Completion
+## 11. Artefact audit and completion
 
-On clean run, print the summary, commit the generated tests on behalf of the user *only if they explicitly ask*, and stop.
+### 11a. Artefact audit (pre-completion)
+
+On a clean run — every planned test executed and green — perform one static audit of the *written* test files before declaring done. This is **not** a new interactive gate and it re-runs nothing: it re-reads the generated test files (read-allowed) and checks them against two independent sources, reporting findings as two **separately-headed** lists. Do NOT merge or rerank the two lists — a convention pass must not mask a coverage gap, and vice versa. The source-reading discipline still applies: never open a production `.kt`/`.java` body during the audit. Cite the profile field or the AC for each finding.
+
+- **Standards** — each written test vs `project-profile.json`. Flag divergences in fixture placement, assertion library, dispatcher pattern, error-wrapper usage, runner wiring, and test-naming style — plus any mock that slipped in despite the never-mocks rule. Cite the violated profile field per finding.
+- **Spec** — each `TEST_PLAN.md` matrix cell vs the emitted tests. Flag cells with no corresponding test that weren't recorded as an explicit skipped-cell, tests whose assertions don't actually exercise the AC they're mapped to, and `source:` markers with no matching test. Quote the AC per finding.
+
+Surface both lists to the user as part of the completion summary. **The user rules** on whether to fix, accept, or ignore each finding — you do not silently edit passing tests. If asked to fix Standards findings, treat convention violations like mechanical patches (apply, then re-run the full module task per Step 9); if asked to fill a missing Spec cell, return to Step 8 (dispatch a mason for that cell), then Step 9. If the audit finds nothing on either axis, say so in one line and proceed.
+
+### 11b. Completion
+
+On clean run, print the summary (including the 11a audit result), commit the generated tests on behalf of the user *only if they explicitly ask*, and stop.
