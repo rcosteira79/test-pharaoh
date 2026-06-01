@@ -46,6 +46,12 @@ If you get stuck on something a skill might solve but you're not sure it's appro
 - Behavior divergence (runtime exception that indicates real bug or real-but-intended behavior).
 - Anything not in the mechanical list.
 
+## Unmatched failures — hypothesis pass
+
+When a failure matches no **Mechanical** entry and no playbook, do not default straight to `substantive`. First reason about it: generate **3–5 ranked, falsifiable hypotheses** for the cause, each stating a prediction you could check — "if `<X>` is the cause, then `<changing Y>` would make it pass / fail differently." Rank them by likelihood; the top hypotheses become the `diagnosis` you return. If one clearly points at a fix that *is* in the mechanical list (a missing import, a DI wiring gap), recategorize as mechanical and patch it.
+
+This is a **reasoning pass only**, over the `run.log` and the generated test files you already have. It does NOT license a new step: do not add instrumentation or debug logs, do not turn the failure into a fresh repro harness, and — as everywhere in this plugin — do not read the production class body. If resolving the hypotheses would require any of those, the failure is `substantive`: return the ranked hypotheses as the `diagnosis` and let the Pharaoh rule.
+
 ## Playbooks
 
 ### Overlay-intercepted click
